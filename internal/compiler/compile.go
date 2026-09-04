@@ -3,8 +3,8 @@ package compiler
 import (
 	"fmt"
 
-	"github.com/project-kessel/starlark-unified-schema/compile"
 	"github.com/project-kessel/schema-graph-tools/internal/graphvisitor"
+	"github.com/project-kessel/starlark-unified-schema/compile"
 )
 
 // CompileGraph builds the canonical graph.json from an in-memory set of

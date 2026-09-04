@@ -34,12 +34,12 @@ type WitnessPath struct {
 
 // ReachVerdict is the result of a CheckRequest reachability verification.
 type ReachVerdict struct {
-	Object   FacetRef      `json:"object"`   // TYPE.REPORTER
+	Object   FacetRef      `json:"object"` // TYPE.REPORTER
 	Relation string        `json:"relation"`
-	Subject  FacetRef      `json:"subject"`  // TYPE.REPORTER (required)
-	Verdict  string        `json:"verdict"`  // "reachable" | "exclusion-only" | "unreachable"
-	Paths    []WitnessPath `json:"paths"`    // all witnesses (grant + exclusion), stable-sorted
-	Proof    *CheckNode    `json:"proof"`    // the underlying ExplainCheck tree (for a tree view)
+	Subject  FacetRef      `json:"subject"` // TYPE.REPORTER (required)
+	Verdict  string        `json:"verdict"` // "reachable" | "exclusion-only" | "unreachable"
+	Paths    []WitnessPath `json:"paths"`   // all witnesses (grant + exclusion), stable-sorted
+	Proof    *CheckNode    `json:"proof"`   // the underlying ExplainCheck tree (for a tree view)
 }
 
 // CheckReachable runs ExplainCheck, then extracts every witness path whose

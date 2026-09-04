@@ -1,4 +1,4 @@
-.PHONY: test build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph graph-analyze graph-playground serve-graph-playground clean
+.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph graph-analyze graph-playground serve-graph-playground clean
 
 GRAPH_WEB_PORT ?= 8000
 GRAPH_OUTPUT_DIR ?= output/graph
@@ -11,6 +11,10 @@ SCHEMA_CHECKOUT_DIR ?= ../starlark-unified-schema
 
 # Go ships wasm_exec.js in lib/wasm (>= 1.24) or misc/wasm (older). Resolve once.
 WASM_EXEC := $(shell if [ -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" ]; then echo "$$(go env GOROOT)/lib/wasm/wasm_exec.js"; else echo "$$(go env GOROOT)/misc/wasm/wasm_exec.js"; fi)
+
+lint:
+	gofmt -w ./cmd ./internal
+	go vet ./...
 
 test:
 	@test -d "$(SCHEMA_DIR)" || { echo "error: schema directory $(SCHEMA_DIR) not found. Clone the sibling repo: git clone https://github.com/project-kessel/starlark-unified-schema ../" >&2; exit 1; }

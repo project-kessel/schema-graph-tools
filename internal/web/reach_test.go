@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/project-kessel/schema-graph-tools/internal/analyze"
-	"github.com/project-kessel/schema-graph-tools/internal/graphdoc"
 	"github.com/project-kessel/schema-graph-tools/internal/compiler"
+	"github.com/project-kessel/schema-graph-tools/internal/graphdoc"
 	"github.com/stretchr/testify/require"
 )
 
