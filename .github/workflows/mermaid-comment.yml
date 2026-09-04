@@ -39,25 +39,25 @@ jobs:
 
     steps:
       - name: Checkout schema-graph-tools
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: project-kessel/schema-graph-tools
           path: schema-graph-tools
 
       - name: Checkout starlark-unified-schema
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: project-kessel/starlark-unified-schema
           path: starlark-unified-schema
 
       - name: Checkout caller repo (PR head)
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           path: caller-repo
           ref: ${{ inputs.ref || github.event.pull_request.head.sha }}
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
           go-version-file: schema-graph-tools/go.mod
           cache-dependency-path: schema-graph-tools/go.sum
@@ -82,7 +82,7 @@ jobs:
           ./bin/graph-mermaid -in /tmp/graph.json -out /tmp/graph.mmd
 
       - name: Upload Mermaid artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: mermaid-diagram
           path: /tmp/graph.mmd
@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload PR metadata
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: pr-metadata
           path: /tmp/pr-number.txt
@@ -112,12 +112,12 @@ jobs:
 
     steps:
       - name: Download Mermaid artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: mermaid-diagram
 
       - name: Download PR metadata
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: pr-metadata
 
@@ -150,7 +150,7 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - name: Find existing comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3
         id: find-comment
         with:
           issue-number: ${{ steps.pr.outputs.number }}
@@ -158,7 +158,7 @@ jobs:
           body-includes: 'Schema Graph Visualization'
 
       - name: Create or update PR comment
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
         with:
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           issue-number: ${{ steps.pr.outputs.number }}
