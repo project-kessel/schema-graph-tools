@@ -14,12 +14,15 @@ import (
 // it compiles schema/ the same way the CLI and the WASM playground do, then
 // explains workspace.features#enabled_services. That permission is
 //
-//	enabled_services = _paid_services AND _desired_services
-//	_paid_services   = direct_billing_account→services OR parent→_paid_services
-//	_desired_services = direct_service_preferences OR parent→_desired_services
+//	enabled_services  = _paid_services AND _desired_services
+//	_paid_services    = direct_billing_account→services
+//	                    OR (parent→_paid_services UNLESS ignore_inherited_paid_services)
+//	_desired_services = (direct_service_preferences OR desire_all_services)
+//	                    OR (parent→_desired_services UNLESS ignore_inherited_desired_services)
 //
 // parent is an AtMostOne self-relation, so both sub-permissions walk the workspace
-// tree: the check is depth-bound, O(D_workspace), with no fan-out.
+// tree: the check is depth-bound, O(D_workspace), with no fan-out. The exclusion
+// operands are local relations, so they cost nothing beyond the recursion.
 func TestExplainCheckRealSchema(t *testing.T) {
 	doc := compileRealSchema(t)
 
@@ -50,7 +53,15 @@ func TestExplainCheckRealSchema(t *testing.T) {
 	paid := root.Body.Children[0] // AND left operand
 	require.Equal(t, "permission", paid.Kind)
 	require.Equal(t, "_paid_services", paid.Name)
-	arrow := paid.Body.Children[1] // OR right operand: parent→_paid_services
+
+	// OR right operand: parent→_paid_services, minus the locally ignored services.
+	inherited := paid.Body.Children[1]
+	require.Equal(t, "op", inherited.Kind)
+	require.Equal(t, "unless", inherited.Op)
+	require.Equal(t, "relation", inherited.Children[1].Kind)
+	require.Equal(t, "ignore_inherited_paid_services", inherited.Children[1].Name)
+
+	arrow := inherited.Children[0]
 	require.Equal(t, "arrow", arrow.Kind)
 	require.Equal(t, "parent", arrow.Name)
 	require.Equal(t, "workspace", arrow.TargetType)
@@ -145,7 +156,7 @@ func compileRealSchema(t *testing.T) graphdoc.Document {
 	// the sibling checkout. CI will check out Repo A and use a replace directive.
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../starlark-unified-schema/schema"
+		schemaDir = "../../../starlark-unified-schema/schema"
 	}
 
 	files := map[string][]byte{}

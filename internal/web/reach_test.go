@@ -67,7 +67,7 @@ func TestReachMatchesFilesystem(t *testing.T) {
 	// the sibling checkout. CI will check out Repo A and use a replace directive.
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../starlark-unified-schema/schema"
+		schemaDir = "../../../starlark-unified-schema/schema"
 	}
 
 	files := map[string][]byte{}
