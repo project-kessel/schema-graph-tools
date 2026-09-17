@@ -43,5 +43,5 @@ jobs:
       - name: Test
         working-directory: schema-graph-tools
         env:
-          SCHEMA_DIR: ../starlark-unified-schema/schema
+          SCHEMA_DIR: ${{ github.workspace }}/starlark-unified-schema/schema
         run: go test -v ./...
