@@ -48,12 +48,12 @@ jobs:
           # Wire the replace directive to local checkout
           go mod edit -replace=github.com/project-kessel/starlark-unified-schema=../starlark-unified-schema/interpreter
 
-          # Build playground
-          make build-graph-playground build-graph-wasm
+          # Build playground (builds binaries + generates index.html)
+          make graph-playground
 
           # Verify build succeeded
-          test -f output/playground/index.html
-          test -f output/playground/graph-playground.wasm
+          test -f output/playground/index.html || { echo "error: index.html not generated" >&2; exit 1; }
+          test -f output/playground/graph-playground.wasm || { echo "error: graph-playground.wasm not built" >&2; exit 1; }
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
