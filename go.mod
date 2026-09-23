@@ -16,4 +16,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/project-kessel/starlark-unified-schema => /home/jmartine/Documents/redhat/starlark-unified-schema/interpreter
+// Nested module requires replace directive
+// Points to downloaded cache (via fetch-schema) or local sibling checkout
+replace github.com/project-kessel/starlark-unified-schema => ./.cache/starlark-unified-schema/interpreter

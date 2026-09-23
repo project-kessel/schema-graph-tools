@@ -2,6 +2,9 @@
 bin/
 output/
 
+# Downloaded schemas cache
+.cache/
+
 # IDE
 .idea/
 .vscode/

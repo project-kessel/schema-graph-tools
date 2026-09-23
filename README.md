@@ -13,11 +13,11 @@ This repo consumes the [starlark-unified-schema](https://github.com/project-kess
 ## Quick Start
 
 ```bash
+# Run tests (auto-downloads schema on first run)
+make test
+
 # Build all graph tools
 make build-graph-mermaid build-graph-analyze build-graph-playground
-
-# Run tests (requires starlark-unified-schema checked out as a sibling)
-make test
 
 # Build and serve the interactive playground
 make serve-graph-playground
@@ -25,7 +25,19 @@ make serve-graph-playground
 
 ## Development
 
-This repo tracks `starlark-unified-schema@main` via a `go.mod` replace directive pointing to a local checkout. Tests and builds expect the schema source to be available at `../starlark-unified-schema/schema` by default (override with `SCHEMA_DIR`).
+All make targets automatically download the schema from [starlark-unified-schema](https://github.com/project-kessel/starlark-unified-schema) if needed. The schema is cached to `.cache/starlark-unified-schema/` (gitignored).
+
+```bash
+make test                # Run all tests (downloads schema if missing)
+make test-integration    # Run full suite with integration tests
+make refresh-schema      # Update cached schema from GitHub main
+make clean-schema        # Remove cached schema
+```
+
+For local development against a custom schema version:
+```bash
+go mod edit -replace=github.com/project-kessel/starlark-unified-schema=../starlark-unified-schema/interpreter
+```
 
 ## Architecture
 
