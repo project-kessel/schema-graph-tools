@@ -1,4 +1,4 @@
-.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph graph-analyze graph-playground serve-graph-playground fetch-schema refresh-schema clean-schema clean
+.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph-playground serve-graph-playground fetch-schema refresh-schema clean-schema clean
 
 GRAPH_WEB_PORT ?= 8000
 GRAPH_OUTPUT_DIR ?= output/graph
