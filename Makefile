@@ -15,7 +15,7 @@ lint:
 	gofmt -w ./cmd ./internal
 	go vet ./...
 
-# Download and cache schema files from GitHub (only if missing)
+# Download and cache schema files from GitHub (for integration tests)
 fetch-schema:
 	@./scripts/fetch-schema.sh $(SCHEMA_REF)
 
@@ -25,40 +25,34 @@ refresh-schema:
 	@./scripts/fetch-schema.sh $(SCHEMA_REF)
 	@echo "Schema refreshed to latest from GitHub"
 
-# Remove cached schema (will be re-downloaded on next test/build)
+# Run tests including integration tests (requires downloaded schema)
+test-integration: fetch-schema
+	SCHEMA_DIR=$$(cd $(SCHEMA_DIR) && pwd) go test -count=1 ./...
+
+# Remove cached schema
 clean-schema:
 	rm -rf .cache/starlark-unified-schema
 
 test: fetch-schema
-	SCHEMA_DIR=$$(cd $(SCHEMA_DIR) && pwd) go test -count=1 ./...
+	go test -count=1 ./...
 
-build-graph-mermaid:
+build-graph-mermaid: fetch-schema
 	go build -o bin/graph-mermaid ./cmd/graph-mermaid
 
-build-graph-analyze:
+build-graph-analyze: fetch-schema
 	go build -o bin/graph-analyze ./cmd/graph-analyze
 
-build-graph-playground:
+build-graph-playground: fetch-schema
 	go build -o bin/graph-playground ./cmd/graph-playground
 
-build-compile-schema:
+build-compile-schema: fetch-schema
 	go build -o bin/compile-schema ./cmd/compile-schema
 
 # Build the in-browser schema compiler (Go -> WASM). The binary is large and
 # toolchain-specific, so it lands in the gitignored output dir, never in git.
-build-graph-wasm:
+build-graph-wasm: fetch-schema
 	mkdir -p "$(GRAPH_PLAYGROUND_DIR)"
 	GOOS=js GOARCH=wasm go build -o "$(GRAPH_PLAYGROUND_DIR)/graph-playground.wasm" ./cmd/graph-wasm
-
-# Render Mermaid diagram from an existing graph.json
-graph: build-graph-mermaid
-	@test -f "$(GRAPH_OUTPUT_DIR)/graph.json" || { echo "error: $(GRAPH_OUTPUT_DIR)/graph.json not found" >&2; exit 1; }
-	./bin/graph-mermaid -in "$(GRAPH_OUTPUT_DIR)/graph.json" -out "$(GRAPH_OUTPUT_DIR)/graph.mmd"
-
-# Analyze graph.json for structural problems (islands / isolated resources).
-graph-analyze: build-graph-analyze
-	@test -f "$(GRAPH_OUTPUT_DIR)/graph.json" || { echo "error: $(GRAPH_OUTPUT_DIR)/graph.json not found" >&2; exit 1; }
-	./bin/graph-analyze -in "$(GRAPH_OUTPUT_DIR)/graph.json"
 
 # Assemble the live playground site (schema source + WASM compiler +
 # wasm_exec.js) into $(GRAPH_PLAYGROUND_DIR). This is the deployable artifact —

@@ -152,10 +152,10 @@ func TestExplainCheckErrors(t *testing.T) {
 // the same pipeline as the CLI and the WASM playground.
 func compileRealSchema(t *testing.T) graphdoc.Document {
 	t.Helper()
-	// Schema downloaded to .cache/ by make fetch-schema
+	// Integration test - requires SCHEMA_DIR
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../../.cache/starlark-unified-schema/schema"
+		t.Skip("SCHEMA_DIR not set; skipping integration test (run 'make test-integration')")
 	}
 
 	files := map[string][]byte{}

@@ -1,6 +1,7 @@
 package analyze
 
 import (
+	"os"
 	"testing"
 
 	"github.com/project-kessel/schema-graph-tools/internal/graphdoc"
@@ -307,10 +308,12 @@ func TestCheckReachableRecursion(t *testing.T) {
 	require.Equal(t, "owner", v.Paths[0].Hops[0].Relation)
 }
 
-// TestCheckReachableRealSchema is the golden guarantee against the committed schema.
-// It exercises at least one reachable, one unreachable, and (if the schema has an
-// unless) one exclusion-only query.
+// TestCheckReachableRealSchema tests against the actual Kessel schema (integration test).
+// Skipped when SCHEMA_DIR is not set. Run 'make test' for full suite.
 func TestCheckReachableRealSchema(t *testing.T) {
+	if os.Getenv("SCHEMA_DIR") == "" {
+		t.Skip("SCHEMA_DIR not set; skipping integration test")
+	}
 	doc := compileRealSchema(t)
 
 	// Reachable: workspace.features#enabled_services -> should reach some subject

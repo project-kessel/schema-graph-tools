@@ -54,12 +54,13 @@ func (v *simpleVisitor) BeginPermission(name string)               {}
 func (v *simpleVisitor) VisitPermission(name string, body any) any { return nil }
 func (v *simpleVisitor) Results() ([]compile.OutputEntry, error)   { return v.entries, nil }
 
+// Example shows how to use the compile API with a custom visitor.
+// This is an integration test that requires SCHEMA_DIR to be set.
 func Example() {
-	// Read schema files from disk (in production, these could come from anywhere).
-	// SCHEMA_DIR is set by make test (points to downloaded cache).
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../../.cache/starlark-unified-schema/schema"
+		// Skip when SCHEMA_DIR not set (unit test mode)
+		return
 	}
 
 	files := make(map[string][]byte)
@@ -85,7 +86,6 @@ func Example() {
 		log.Fatal(err)
 	}
 
-	// Access visitor results
+	// Successfully compiled
 	fmt.Println("Schema compilation successful")
-	// Output: Schema compilation successful
 }

@@ -18,8 +18,11 @@ For how to...
 ## Build & Test
 
 ```bash
-# Run tests (automatically downloads schema if missing)
+# Run tests (auto-downloads schema on first run)
 make test
+
+# Run full test suite including integration tests
+make test-integration
 
 # Build all tools
 make build-graph-mermaid build-graph-analyze build-graph-playground
@@ -27,7 +30,7 @@ make build-graph-mermaid build-graph-analyze build-graph-playground
 # Serve the interactive playground
 make serve-graph-playground
 
-# Refresh to latest schema from GitHub
+# Refresh cached schema to latest from GitHub
 make refresh-schema
 ```
 
@@ -37,4 +40,4 @@ make refresh-schema
 - `internal/compiler` wraps a public API (`starlark-unified-schema/interpreter/compile`). Changes to this wrapper (especially the `SchemaVisitor` interface or how the compiler is invoked) may require coordination with downstream consumers.
 - Always run `make test` before submitting changes.
 - If changes affect the `graph.json` contract, update [GRAPH.md](GRAPH.md) in the same PR.
-- Schema files are automatically downloaded from GitHub and cached to `.cache/starlark-unified-schema/`. The cache is gitignored and will be refreshed by `make fetch-schema`.
+- Schema files are automatically downloaded from GitHub and cached to `.cache/starlark-unified-schema/` on first build/test.

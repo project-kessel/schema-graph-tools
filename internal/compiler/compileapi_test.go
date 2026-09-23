@@ -13,19 +13,14 @@ import (
 	"github.com/project-kessel/starlark-unified-schema/compile"
 )
 
-// realSchemaDir resolves the schema directory. SCHEMA_DIR is set by make test
-// (pointing to the downloaded cache at .cache/starlark-unified-schema/schema).
+// realSchemaDir returns path to real Kessel schema (integration tests only).
+// Integration tests are skipped when SCHEMA_DIR is not set.
 func realSchemaDir(t *testing.T) string {
 	t.Helper()
-
 	dir := os.Getenv("SCHEMA_DIR")
 	if dir == "" {
-		dir = "../../../.cache/starlark-unified-schema/schema"
+		t.Skip("SCHEMA_DIR not set; skipping integration test (run 'make test-integration')")
 	}
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		t.Fatalf("schema directory %q not found; run 'make fetch-schema'", dir)
-	}
-
 	return dir
 }
 
@@ -65,7 +60,7 @@ func readKesselStar(t *testing.T) []byte {
 
 	contents, err := os.ReadFile(filepath.Join(realSchemaDir(t), "kessel.star"))
 	if err != nil {
-		t.Skip("kessel.star not available")
+		t.Fatalf("kessel.star not available: %v", err)
 	}
 
 	return contents
@@ -166,14 +161,14 @@ func (m *mockVisitor) Results() ([]compile.OutputEntry, error) {
 	return m.resultEntries, m.resultError
 }
 
-// TestCompileRealSchema compiles the actual committed schema to verify the public
-// API works end-to-end with real world complexity
-func TestCompileRealSchema(t *testing.T) {
+// TestCompileTestSchema compiles the local test schema to verify the public
+// API works end-to-end
+func TestCompileTestSchema(t *testing.T) {
 	files := readStarFiles(t, realSchemaDir(t))
 
 	visitor := &mockVisitor{}
 	if err := compile.Compile(files, visitor); err != nil {
-		t.Fatalf("Compile failed on real schema: %v", err)
+		t.Fatalf("Compile failed on test schema: %v", err)
 	}
 
 	// Real schema has multiple resource types
