@@ -56,10 +56,10 @@ func (v *simpleVisitor) Results() ([]compile.OutputEntry, error)   { return v.en
 
 func Example() {
 	// Read schema files from disk (in production, these could come from anywhere).
-	// CI sets SCHEMA_DIR; locally we fall back to the sibling Repo A checkout.
+	// SCHEMA_DIR is set by make test (points to downloaded cache).
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../../starlark-unified-schema/schema"
+		schemaDir = "../../../.cache/starlark-unified-schema/schema"
 	}
 
 	files := make(map[string][]byte)

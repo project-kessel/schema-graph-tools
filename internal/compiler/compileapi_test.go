@@ -13,18 +13,17 @@ import (
 	"github.com/project-kessel/starlark-unified-schema/compile"
 )
 
-// realSchemaDir resolves the Repo A schema checkout. CI sets SCHEMA_DIR; for
-// local dev we fall back to the sibling checkout. Tests skip when it is absent
-// so the suite still runs in an isolated checkout.
+// realSchemaDir resolves the schema directory. SCHEMA_DIR is set by make test
+// (pointing to the downloaded cache at .cache/starlark-unified-schema/schema).
 func realSchemaDir(t *testing.T) string {
 	t.Helper()
 
 	dir := os.Getenv("SCHEMA_DIR")
 	if dir == "" {
-		dir = "../../../starlark-unified-schema/schema"
+		dir = "../../../.cache/starlark-unified-schema/schema"
 	}
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		t.Skipf("schema directory %q not found; set SCHEMA_DIR", dir)
+		t.Fatalf("schema directory %q not found; run 'make fetch-schema'", dir)
 	}
 
 	return dir

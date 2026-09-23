@@ -16,4 +16,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/project-kessel/starlark-unified-schema => /home/jmartine/Documents/redhat/starlark-unified-schema/interpreter
+// Downloaded to .cache/ by make fetch-schema (or use a local checkout)
+replace github.com/project-kessel/starlark-unified-schema => ./.cache/starlark-unified-schema/interpreter

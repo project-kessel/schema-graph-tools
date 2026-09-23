@@ -29,13 +29,6 @@ jobs:
         with:
           path: schema-graph-tools
 
-      - name: Checkout starlark-unified-schema@main
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          repository: project-kessel/starlark-unified-schema
-          path: starlark-unified-schema
-          # No token needed - public repo
-
       - name: Set up Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
@@ -45,8 +38,8 @@ jobs:
       - name: Build graph tools
         working-directory: schema-graph-tools
         run: |
-          # Wire the replace directive to local checkout
-          go mod edit -replace=github.com/project-kessel/starlark-unified-schema=../starlark-unified-schema/interpreter
+          # Fetch schema from GitHub
+          make fetch-schema
 
           # Build playground (builds binaries + generates index.html)
           make graph-playground

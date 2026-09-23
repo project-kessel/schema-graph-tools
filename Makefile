@@ -1,13 +1,12 @@
-.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph graph-analyze graph-playground serve-graph-playground clean
+.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph graph-analyze graph-playground serve-graph-playground fetch-schema refresh-schema clean-schema clean
 
 GRAPH_WEB_PORT ?= 8000
 GRAPH_OUTPUT_DIR ?= output/graph
 GRAPH_PLAYGROUND_DIR ?= output/playground
 
-# Schema lives in Repo A (starlark-unified-schema). For local dev, point to a
-# sibling checkout. CI will check out Repo A and set this to the checkout path.
-SCHEMA_DIR ?= ../starlark-unified-schema/schema
-SCHEMA_CHECKOUT_DIR ?= ../starlark-unified-schema
+# Schema downloaded from GitHub and cached locally (override with SCHEMA_DIR if needed)
+SCHEMA_DIR ?= .cache/starlark-unified-schema/schema
+SCHEMA_REF ?= main
 
 # Go ships wasm_exec.js in lib/wasm (>= 1.24) or misc/wasm (older). Resolve once.
 WASM_EXEC := $(shell if [ -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" ]; then echo "$$(go env GOROOT)/lib/wasm/wasm_exec.js"; else echo "$$(go env GOROOT)/misc/wasm/wasm_exec.js"; fi)
@@ -16,8 +15,21 @@ lint:
 	gofmt -w ./cmd ./internal
 	go vet ./...
 
-test:
-	@test -d "$(SCHEMA_DIR)" || { echo "error: schema directory $(SCHEMA_DIR) not found. Clone the sibling repo: git clone https://github.com/project-kessel/starlark-unified-schema ../" >&2; exit 1; }
+# Download and cache schema files from GitHub (only if missing)
+fetch-schema:
+	@./scripts/fetch-schema.sh $(SCHEMA_REF)
+
+# Force refresh: download latest schema from GitHub
+refresh-schema:
+	@rm -rf .cache/starlark-unified-schema
+	@./scripts/fetch-schema.sh $(SCHEMA_REF)
+	@echo "Schema refreshed to latest from GitHub"
+
+# Remove cached schema (will be re-downloaded on next test/build)
+clean-schema:
+	rm -rf .cache/starlark-unified-schema
+
+test: fetch-schema
 	SCHEMA_DIR=$$(cd $(SCHEMA_DIR) && pwd) go test -count=1 ./...
 
 build-graph-mermaid:
@@ -52,8 +64,7 @@ graph-analyze: build-graph-analyze
 # wasm_exec.js) into $(GRAPH_PLAYGROUND_DIR). This is the deployable artifact —
 # the CI Pages workflow uploads exactly this directory. Building it is separate
 # from serving so both the workflow and serve-graph-playground share one recipe.
-graph-playground: build-graph-playground build-graph-wasm
-	@test -d "$(SCHEMA_DIR)" || { echo "error: schema directory $(SCHEMA_DIR) not found" >&2; exit 1; }
+graph-playground: build-graph-playground build-graph-wasm fetch-schema
 	cp "$(WASM_EXEC)" "$(GRAPH_PLAYGROUND_DIR)/wasm_exec.js"
 	./bin/graph-playground -src "$(SCHEMA_DIR)" -out "$(GRAPH_PLAYGROUND_DIR)/index.html"
 
@@ -67,3 +78,4 @@ serve-graph-playground: graph-playground
 clean:
 	rm -rf bin/
 	rm -rf output/
+	rm -rf .cache/

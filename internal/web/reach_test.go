@@ -63,11 +63,10 @@ func TestCheckReachableErrors(t *testing.T) {
 // (web.CheckReachable), and assert byte-identical. This pins the "browser matches
 // native" guarantee.
 func TestReachMatchesFilesystem(t *testing.T) {
-	// Schema lives in Repo A (starlark-unified-schema). For local dev, point to
-	// the sibling checkout. CI will check out Repo A and use a replace directive.
+	// Schema downloaded to .cache/ by make fetch-schema
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../../starlark-unified-schema/schema"
+		schemaDir = "../../../.cache/starlark-unified-schema/schema"
 	}
 
 	files := map[string][]byte{}

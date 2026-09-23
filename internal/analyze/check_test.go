@@ -152,11 +152,10 @@ func TestExplainCheckErrors(t *testing.T) {
 // the same pipeline as the CLI and the WASM playground.
 func compileRealSchema(t *testing.T) graphdoc.Document {
 	t.Helper()
-	// Schema lives in Repo A (starlark-unified-schema). For local dev, point to
-	// the sibling checkout. CI will check out Repo A and use a replace directive.
+	// Schema downloaded to .cache/ by make fetch-schema
 	schemaDir := os.Getenv("SCHEMA_DIR")
 	if schemaDir == "" {
-		schemaDir = "../../../starlark-unified-schema/schema"
+		schemaDir = "../../../.cache/starlark-unified-schema/schema"
 	}
 
 	files := map[string][]byte{}

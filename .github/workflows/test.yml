@@ -16,32 +16,18 @@ jobs:
     steps:
       - name: Checkout schema-graph-tools
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          path: schema-graph-tools
-
-      - name: Checkout starlark-unified-schema
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          repository: project-kessel/starlark-unified-schema
-          path: starlark-unified-schema
 
       - name: Set up Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version-file: schema-graph-tools/go.mod
-          cache-dependency-path: schema-graph-tools/go.sum
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
 
-      - name: Wire replace directive
-        working-directory: schema-graph-tools
-        run: |
-          go mod edit -replace=github.com/project-kessel/starlark-unified-schema=../starlark-unified-schema/interpreter
+      - name: Fetch schema
+        run: make fetch-schema
 
       - name: Build
-        working-directory: schema-graph-tools
         run: go build ./...
 
       - name: Test
-        working-directory: schema-graph-tools
-        env:
-          SCHEMA_DIR: ${{ github.workspace }}/starlark-unified-schema/schema
-        run: go test -v ./...
+        run: make test
