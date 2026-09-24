@@ -4,6 +4,8 @@ Graph-theory tools for the Kessel Starlark schema: visualization, analysis, and 
 
 This repo consumes the [starlark-unified-schema](https://github.com/project-kessel/starlark-unified-schema) interpreter's public API (`interpreter/compile`) to build canonical graph representations and tooling around them.
 
+**📖 [Visit the interactive playground](https://project-kessel.github.io/schema-graph-tools/)**
+
 ## Tools
 
 - **graph-mermaid**: Renders Mermaid flowcharts from `graph.json`
