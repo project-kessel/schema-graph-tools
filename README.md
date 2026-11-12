@@ -33,8 +33,21 @@ All make targets automatically download the schema from [starlark-unified-schema
 make test                # Run all tests (downloads schema if missing)
 make test-integration    # Run full suite with integration tests
 make refresh-schema      # Update cached schema from GitHub main
+make sync-deps         # Synchronize go.mod/go.sum with the cached schema
 make clean-schema        # Remove cached schema
 ```
+
+Run `make refresh-schema` followed by `make sync-deps` to synchronize with the
+latest upstream schema. Synchronization runs `go mod tidy`, raising our Go minimum
+when required and updating dependency requirements and checksums. Use a sufficiently
+recent Go installation or enable automatic toolchain downloads with
+`GOTOOLCHAIN=auto make sync-deps`.
+
+The scheduled playground rebuild always fetches upstream `main` and uses the latest
+stable Go release. It runs `make sync-deps` in its disposable checkout before
+building, so upstream Go minimum and dependency changes do not require a
+committed version bump here. Upstream API or schema incompatibilities can still
+require code changes.
 
 For local development against a custom schema version:
 ```bash
