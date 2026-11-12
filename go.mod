@@ -1,6 +1,6 @@
 module github.com/project-kessel/schema-graph-tools
 
-go 1.26.6
+go 1.26.10
 
 require (
 	github.com/project-kessel/starlark-unified-schema v0.0.0

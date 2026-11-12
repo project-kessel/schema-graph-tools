@@ -1,4 +1,4 @@
-.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph-playground serve-graph-playground fetch-schema refresh-schema clean-schema clean
+.PHONY: test lint build-graph-mermaid build-graph-analyze build-graph-playground build-graph-wasm build-compile-schema graph-playground serve-graph-playground fetch-schema refresh-schema sync-deps clean-schema clean
 
 GRAPH_WEB_PORT ?= 8000
 GRAPH_OUTPUT_DIR ?= output/graph
@@ -8,8 +8,9 @@ GRAPH_PLAYGROUND_DIR ?= output/playground
 SCHEMA_DIR ?= .cache/starlark-unified-schema/schema
 SCHEMA_REF ?= main
 
-# Go ships wasm_exec.js in lib/wasm (>= 1.24) or misc/wasm (older). Resolve once.
-WASM_EXEC := $(shell if [ -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" ]; then echo "$$(go env GOROOT)/lib/wasm/wasm_exec.js"; else echo "$$(go env GOROOT)/misc/wasm/wasm_exec.js"; fi)
+# Resolve when used so sync-deps can update the selected Go toolchain first.
+# Go ships wasm_exec.js in lib/wasm (>= 1.24) or misc/wasm (older).
+WASM_EXEC = $(shell if [ -f "$$(go env GOROOT)/lib/wasm/wasm_exec.js" ]; then echo "$$(go env GOROOT)/lib/wasm/wasm_exec.js"; else echo "$$(go env GOROOT)/misc/wasm/wasm_exec.js"; fi)
 
 lint:
 	gofmt -w ./cmd ./internal
@@ -24,6 +25,11 @@ refresh-schema:
 	@rm -rf .cache/starlark-unified-schema
 	@./scripts/fetch-schema.sh $(SCHEMA_REF)
 	@echo "Schema refreshed to latest from GitHub"
+
+# Align module requirements with the cached schema interpreter, raising Go's
+# minimum if needed. Run refresh-schema first to synchronize with upstream main.
+sync-deps: fetch-schema
+	go mod tidy
 
 # Run tests including integration tests (requires downloaded schema)
 test-integration: fetch-schema

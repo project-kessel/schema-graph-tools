@@ -29,18 +29,24 @@ jobs:
         with:
           path: schema-graph-tools
 
-      - name: Set up Go
+      - name: Set up latest stable Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version-file: schema-graph-tools/go.mod
+          go-version: stable
+          check-latest: true
           cache-dependency-path: schema-graph-tools/go.sum
+
+      - name: Fetch latest schema and synchronize module requirements
+        working-directory: schema-graph-tools
+        run: |
+          make refresh-schema
+          # Upstream main may require a newer Go version or new dependencies.
+          # Update only this disposable checkout; no changes are committed.
+          make sync-deps
 
       - name: Build graph tools
         working-directory: schema-graph-tools
         run: |
-          # Fetch schema from GitHub
-          make fetch-schema
-
           # Build playground (builds binaries + generates index.html)
           make graph-playground
 

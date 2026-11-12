@@ -50,6 +50,9 @@ func (v *simpleVisitor) VisitSubReferenceExpression(name string, sub string) any
 func (v *simpleVisitor) VisitRelation(name string, reporter string, typeName string, cardinality string, idType any) any {
 	return nil
 }
+func (v *simpleVisitor) VisitBooleanWildcardRelation(name, reporter, typeName string, idType any) (any, error) {
+	return nil, nil
+}
 func (v *simpleVisitor) BeginPermission(name string)               {}
 func (v *simpleVisitor) VisitPermission(name string, body any) any { return nil }
 func (v *simpleVisitor) Results() ([]compile.OutputEntry, error)   { return v.entries, nil }
