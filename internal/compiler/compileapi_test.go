@@ -6,10 +6,12 @@ package compiler_test
 // end-to-end, and a breaking change there fails this suite.
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/project-kessel/schema-graph-tools/internal/compiler"
 	"github.com/project-kessel/starlark-unified-schema/compile"
 )
 
@@ -149,6 +151,39 @@ func (m *mockVisitor) VisitSubReferenceExpression(name string, sub string) any {
 
 func (m *mockVisitor) VisitRelation(name string, reporter string, typeName string, cardinality string, idType any) any {
 	return map[string]any{"name": name, "typeName": typeName}
+}
+
+func (m *mockVisitor) VisitBooleanWildcardRelation(name, reporter, typeName string, idType any) (any, error) {
+	return m.VisitRelation(name, reporter, typeName, "All", idType), nil
+}
+
+// Boolean input changes tuple generation, but preserves wildcard graph topology
+// and permission references, including the target reporter and All cardinality.
+func TestCompileGraphBooleanWildcard(t *testing.T) {
+	prelude := readKesselStar(t)
+	schema := []byte(`
+load("kessel.star", "resource", "text", "uuid", "boolean", "wildcard")
+service = resource("features", id_type=text())
+workspace = resource("rbac", id_type=uuid(), fields={
+    "service": boolean(service),
+}, permissions={
+    "enabled": lambda self: self.service,
+})
+`)
+	graph, err := compiler.CompileGraph(map[string][]byte{"kessel.star": prelude, "test.star": schema})
+	if err != nil {
+		t.Fatal(err)
+	}
+	legacy, err := compiler.CompileGraph(map[string][]byte{
+		"kessel.star": prelude,
+		"test.star":   bytes.ReplaceAll(schema, []byte("boolean(service)"), []byte("wildcard(service)")),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(graph, legacy) {
+		t.Fatalf("boolean wildcard graph differs from legacy wildcard:\n%s\n%s", graph, legacy)
+	}
 }
 
 func (m *mockVisitor) BeginPermission(name string) {}

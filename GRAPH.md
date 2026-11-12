@@ -173,6 +173,9 @@ consume directly. Two kinds today:
 - `self` — true when the relation targets its own type/reporter (authored via
   `self()` or an explicit same-type reference). Renders as a self-loop.
 - `cardinality` — one of `AtMostOne`, `ExactlyOne`, `AtLeastOne`, `Many`, `All`.
+  Both `wildcard(target)` and `boolean(target)` produce `All` relation edges.
+  Boolean input affects tuple generation; it does not change graph topology and
+  is not represented as a separate data field or edge attribute.
 
 ### Inheritance edges (`kind: "inherits"`)
 

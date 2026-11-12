@@ -30,6 +30,7 @@ func NewGraphVisitor() *GraphVisitor {
 
 // Verify that GraphVisitor implements compile.SchemaVisitor at compile time.
 var _ compile.SchemaVisitor = (*GraphVisitor)(nil)
+var _ compile.BooleanWildcardVisitor = (*GraphVisitor)(nil)
 
 type graphOutput struct {
 	Version string       `json:"version"`
@@ -200,6 +201,12 @@ func (v *GraphVisitor) VisitRelation(name string, reporter string, typeName stri
 		targetType:     typeName,
 		targetReporter: reporter,
 	}
+}
+
+// Boolean-backed wildcards have the same graph topology as other wildcards.
+// Their boolean input controls tuple generation, which graph.json does not model.
+func (v *GraphVisitor) VisitBooleanWildcardRelation(name, reporter, typeName string, idType any) (any, error) {
+	return v.VisitRelation(name, reporter, typeName, "All", idType), nil
 }
 
 func (v *GraphVisitor) VisitDataField(name string, required bool, description *string, dataType any) any {
